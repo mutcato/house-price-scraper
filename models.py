@@ -28,17 +28,21 @@ class ScraperResponse(models.Response):
         else:
             reason = self.reason
 
-        if self.status_code == 429:
-            return self.wait_on_429()
-        if int(self.status_code) == 301:
+        if self.status_code == 301:
             logger.warning(f"Status Code: {self.status_code}. {self.url} redirected.")
             return True
-
-        if 400 <= self.status_code < 500:
+        elif self.status_code == 500:
+            logger.warning(f"Status Code: {self.status_code}. {self.url} Inernal server error.")
+            return True
+        elif self.status_code == 403:
+            logger.warning(f"Status Code: {self.status_code}. {self.url} Forbidden")
+            return True
+        elif self.status_code == 429:
+            return self.wait_on_429()
+        elif 400 <= self.status_code < 500:
             http_error_msg = (
                 f"{self.status_code} Client Error: {reason} for url: {self.url}"
             )
-
         elif 500 <= self.status_code < 600:
             http_error_msg = (
                 f"{self.status_code} Server Error: {reason} for url: {self.url}"

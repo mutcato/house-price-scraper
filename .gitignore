@@ -1,4 +1,4 @@
-realty_results/
+realty_results*/
 venv/
 .env
 __pycache__

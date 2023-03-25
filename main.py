@@ -17,12 +17,12 @@ logger = logging.getLogger("messagereport")
 
 """
 TODO:
-internal_id, data_source, url, version(int), price, predicted_price, predicted_rental_price, created_at, updated_at, inserted_at
+internal_id, data_source, url, version(int), price, currency, predicted_price, predicted_rental_price, created_at, updated_at, inserted_at
 attributes tablosunda olacak ilave fieldlar: data_source(hepsiemlak, sahibinden), realty_type(daire, villa, müstakil ev vs.), type(sale/rental)
 SELECT ARRAY(SELECT unnest(ARRAY[1,2,3,4,5]) EXCEPT SELECT id FROM houses);
 """
 
-directory_name = "realty_results" 
+directory_name = "realty_results2" 
 os.makedirs(directory_name, exist_ok=True)
 
 single_house_url = "https://www.hepsiemlak.com/api/realties/2608-4401"
