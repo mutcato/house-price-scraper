@@ -3,10 +3,8 @@ from logging.config import dictConfig
 from logram.handlers import Telegram
 
 config = dotenv_values(".env")
-
 Telegram.token = config["TELEGRAM_TOKEN"]
 Telegram.chat_id = config["CHAT_ID"]
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
