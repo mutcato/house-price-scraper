@@ -1,52 +1,58 @@
-import logging
-import time
-from requests import models, exceptions
-
-logger = logging.getLogger("messagereport")
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+from .database import Base
 
 
-class ScraperResponse(models.Response):
-    def wait_on_429(self):
-        retry_time = int(self.headers.get("Retry-After")) + 100
-        logger.error(f"Waiting for: {retry_time} sec")
-        time.sleep(retry_time)
-        return True
+class House(Base):
+    __tablename__ = "houses"
 
-    def raise_for_status(self):
-        """Raises :class:`HTTPError`, if one occurred."""
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    internal_id = Column(Integer, index=True)
+    data_source = Column(String, index=True)
+    url = Column(String, unique=True,index=True)
+    version = Column(Integer, default=1)
+    is_last_version = Column(Boolean, default=True)
+    price = Column(Integer, index=True)
+    currency = Column(String, index=True)
+    predicted_price = Column(Integer, index=True, default=None, nullable=True)
+    predicted_rental_price = Column(Integer, index=True, default=None, nullable=True)
+    created_at = Column(String, index=True)
+    updated_at = Column(String, index=True)
+    inserted_at = Column(String, index=True)
+    is_active = Column(Boolean, default=True)
+    attribute = relationship("Attribute", back_populates="houses", secondary="house_attributes")
 
-        http_error_msg = ""
-        if isinstance(self.reason, bytes):
-            # We attempt to decode utf-8 first because some servers
-            # choose to localize their reason strings. If the string
-            # isn't utf-8, we fall back to iso-8859-1 for all other
-            # encodings. (See PR #3538)
-            try:
-                reason = self.reason.decode("utf-8")
-            except UnicodeDecodeError:
-                reason = self.reason.decode("iso-8859-1")
-        else:
-            reason = self.reason
+    def __repr__(self):
+        return f"House(internal_id={self.internal_id}, data_source={self.data_source}, price={self.price}, currency={self.currency}, predicted_price={self.predicted_price})"
+    
+    def __str__(self):
+        return f"House(internal_id={self.internal_id}, data_source={self.data_source}, price={self.price}, currency={self.currency}, predicted_price={self.predicted_price})"
+    
 
-        if self.status_code == 301:
-            logger.warning(f"Status Code: {self.status_code}. {self.url} redirected.")
-            return True
-        elif self.status_code == 500:
-            logger.warning(f"Status Code: {self.status_code}. {self.url} Inernal server error.")
-            return True
-        elif self.status_code == 403:
-            logger.warning(f"Status Code: {self.status_code}. {self.url} Forbidden")
-            return True
-        elif self.status_code == 429:
-            return self.wait_on_429()
-        elif 400 <= self.status_code < 500:
-            http_error_msg = (
-                f"{self.status_code} Client Error: {reason} for url: {self.url}"
-            )
-        elif 500 <= self.status_code < 600:
-            http_error_msg = (
-                f"{self.status_code} Server Error: {reason} for url: {self.url}"
-            )
+class Attribute(Base):
+    __tablename__ = "attributes"
 
-        if http_error_msg:
-            raise exceptions.HTTPError(http_error_msg, response=self)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String, index=True)
+    value = Column(String, index=True)
+    house = relationship("House", back_populates="attributes", secondary="house_attributes")
+
+    def __repr__(self):
+        return f"Attributes(name={self.name}, value={self.value})"
+    
+    def __str__(self):
+        return f"Attributes(name={self.name}, value={self.value})"
+    
+class HouseAttribute(Base):
+    __tablename__ = "house_attributes"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    house_id = Column(Integer, ForeignKey("houses.id"))
+    attribute_id = Column(Integer, ForeignKey("attributes.id"))
+
+
+    def __repr__(self):
+        return f"HouseAttribute(house={self.house}, attribute={self.attribute})"
+    
+    def __str__(self):
+        return f"HouseAttribute(house={self.house}, attribute={self.attribute})"

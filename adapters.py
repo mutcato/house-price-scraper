@@ -7,7 +7,7 @@ from requests.structures import CaseInsensitiveDict
 from urllib3.poolmanager import PoolManager
 from urllib3.util.ssl_ import create_urllib3_context
 from typing import Any, List
-from models import ScraperResponse
+from http_models import ScraperResponse
 
 class TlsAdapter(HTTPAdapter):
     def __init__(self, ciphers: List[Any], ssl_options=0, **kwargs):
