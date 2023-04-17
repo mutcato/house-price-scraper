@@ -141,8 +141,7 @@ while True:
   shuffle(realty_list)
   for index, reality in enumerate(realty_list):
     try:
-      single_houlse_url = f"https://www.hepsiemlak.com/api/realties/{reality['id']}"
-      single_response = session.get(single_house_url)
+      single_response = session.get(f"https://www.hepsiemlak.com/api/realties/{reality['id']}")
     except MaxRetryError as e:
       logger.warning(f"MaxRetryError: {e}")
       continue
@@ -157,7 +156,7 @@ while True:
       continue
         
     with open(f"{directory_name}/{str(reality['id'])}.json", "w") as file:
-      json.dump(single_response.json(), file, indent=4)
+      json.dump(single_response.json(), file, indent=4, ensure_ascii=False)
 
     if index % 3 == 0:
       session = generate_session_with_unique_fingerprint(headers, CIPHERS_ARR)
