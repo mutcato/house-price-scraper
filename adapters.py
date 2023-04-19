@@ -1,13 +1,15 @@
 import ssl
+from typing import Any, List
 
 from requests.adapters import HTTPAdapter
 from requests.cookies import extract_cookies_to_jar
-from requests.utils import get_encoding_from_headers
 from requests.structures import CaseInsensitiveDict
+from requests.utils import get_encoding_from_headers
 from urllib3.poolmanager import PoolManager
 from urllib3.util.ssl_ import create_urllib3_context
-from typing import Any, List
+
 from http_models import ScraperResponse
+
 
 class TlsAdapter(HTTPAdapter):
     def __init__(self, ciphers: List[Any], ssl_options=0, **kwargs):
@@ -16,7 +18,9 @@ class TlsAdapter(HTTPAdapter):
         super(TlsAdapter, self).__init__(**kwargs)
 
     def init_poolmanager(self, *pool_args, **pool_kwargs):
-        ctx = create_urllib3_context(ciphers=self.ciphers, cert_reqs=ssl.CERT_REQUIRED, options=self.ssl_options)
+        ctx = create_urllib3_context(
+            ciphers=self.ciphers, cert_reqs=ssl.CERT_REQUIRED, options=self.ssl_options
+        )
         self.poolmanager = PoolManager(*pool_args, ssl_context=ctx, **pool_kwargs)
 
     def build_response(self, req, resp):

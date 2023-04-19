@@ -1,6 +1,7 @@
 import logging
 import time
-from requests import models, exceptions
+
+from requests import exceptions, models
 
 logger = logging.getLogger("messagereport")
 
@@ -32,7 +33,9 @@ class ScraperResponse(models.Response):
             logger.warning(f"Status Code: {self.status_code}. {self.url} redirected.")
             return True
         elif self.status_code == 500:
-            logger.warning(f"Status Code: {self.status_code}. {self.url} Inernal server error.")
+            logger.warning(
+                f"Status Code: {self.status_code}. {self.url} Inernal server error."
+            )
             return True
         elif self.status_code == 403:
             logger.warning(f"Status Code: {self.status_code}. {self.url} Forbidden")
